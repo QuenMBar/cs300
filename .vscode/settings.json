@@ -1,0 +1,18 @@
+{
+    "spellright.language": [
+        "en_US"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext",
+        "c",
+        "django-txt"
+    ],
+    "spellright.parserByClass": {
+        "django-txt": {
+            "parser": "plain"
+        }
+    },
+    "python.pythonPath": "/usr/bin/python3"
+}

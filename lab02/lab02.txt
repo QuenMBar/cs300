@@ -1,1 +1,5 @@
 eth IP 153.106.117.159
+1) If -o is not given, the default name given to the executable is a.out.
+2) The error given by the compiler is: program1.c:9:2: error: expected â;â before âreturnâ
+  return 0;
+Im pretty sure this is a syntax error.

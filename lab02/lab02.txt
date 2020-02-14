@@ -10,3 +10,4 @@ Im pretty sure this is a syntax error.
 7) bash: ./program2.2: cannot execute binary file: Exec format error
 8) program2.2: ELF 32-bit LSB shared object, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-, for GNU/Linux 3.2.0, BuildID[sha1]=14d68271f57b0ba26a7087ea908bb8be635febe7, not stripped
 9) The program ran.  If i wanted to change the program id have to recompile it on my desktop, and then transfer it again
+10) It installed vs server

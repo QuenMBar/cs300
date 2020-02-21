@@ -1,13 +1,17 @@
-eth IP 153.106.117.159
+Quentin Barnes
+CS 300 - Lab 02
+2/15/2020
+
 1) If -o is not given, the default name given to the executable is a.out.
 2) The error given by the compiler is: program1.c:9:2: error: expected �;� before �return�
-  return 0;
+   return 0;
 Im pretty sure this is a syntax error.
-3) The program is built for a 64 bit intel processor
-4) The Intel assembly language instruction is used to call the puts routine is call.  (It calls puts@PTL)
+3) The program is built for a 64 bit intel processor.
+4) The Intel assembly language instruction is used to call the puts routine is 'call'.  (Its call puts@PTL)
 5) The assembly code is different because it is now done for the ARM platform
 6) The arm assembly calls puts with bl (branch with link)
-7) bash: ./program2.2: cannot execute binary file: Exec format error
+7) Error: bash: ./program2.2: cannot execute binary file: Exec format error
+   This error is because the binary file that is made cannot be run on the machine.  This is because it is a intel cpu trying to run an arm build of the program.
 8) program2.2: ELF 32-bit LSB shared object, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-, for GNU/Linux 3.2.0, BuildID[sha1]=14d68271f57b0ba26a7087ea908bb8be635febe7, not stripped
 9) The program ran.  If i wanted to change the program id have to recompile it on my desktop, and then transfer it again
-10) It installed vs server
+10) It installed vs server so that we can ssh into it

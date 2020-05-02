@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "logtemp.py", line 49, in <module>
+    signal.pause()  # block on signal, handler is called automatically
+  File "logtemp.py", line 31, in timer_handler
+    cursor.execute(sqlcmd)
+sqlite3.OperationalError: attempt to write a readonly database

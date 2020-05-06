@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
+# This program is for a rasberry pi to interface with a connected RFID module (RC522) and detect what RFID chip
+# is being connected to it.  If its unique identifier matches the saved one, then it lights up the green light and
+# sends a message to grant access over the MQTT server.  If it is not the saved one, then it lights up the red led
+# and sends a message to deny access.  It also logs the date/time and the unique id when a rfid is rejected.
+
+# Imports
 import RPi.GPIO as GPIO
 import mfrc522
 import signal
@@ -9,10 +15,7 @@ import paho.mqtt.client as mqtt
 import os
 import datetime
 
-
-continue_reading = True
-
-# Constants
+# Constants/Globals
 BROKER = 'iot.cs.calvin.edu'
 USERNAME = "cs300"  # Put broker username here
 PASSWORD = "safeIoT"  # Put broker password here
@@ -21,6 +24,8 @@ QOS = 0
 DELAY = 5.0
 TOPIC = 'QandT/FinalProj'
 CERTS = '/etc/ssl/certs/ca-certificates.crt'
+continue_reading = True
+my_uid = [217, 164, 46, 195, 144]
 
 # Capture SIGINT for cleanup when the script is aborted
 
@@ -30,6 +35,7 @@ def end_read(signal, frame):
     print("Ctrl+C captured, ending read.")
     continue_reading = False
     GPIO.cleanup()
+
 
 # Callback when a connection has been established with the MQTT broker
 
@@ -50,7 +56,6 @@ client.tls_set(CERTS)
 client.connect(BROKER, PORT, 60)
 client.loop_start()
 
-
 # Hook the SIGINT
 signal.signal(signal.SIGINT, end_read)
 
@@ -60,6 +65,15 @@ MIFAREReader = mfrc522.MFRC522()
 # Welcome message
 print("Welcome to the mfrc522 data read example")
 print("Press Ctrl-C to stop.")
+
+# Configure LED Output Pin
+LED1 = 36
+GPIO.setup(LED1, GPIO.OUT)
+GPIO.output(LED1, GPIO.LOW)
+
+LED2 = 32
+GPIO.setup(LED2, GPIO.OUT)
+GPIO.output(LED2, GPIO.LOW)
 
 # This loop keeps checking for chips. If one is near it will get the UID and authenticate
 while continue_reading:
@@ -78,45 +92,37 @@ while continue_reading:
     if status == MIFAREReader.MI_OK:
 
         # Print UID
-        print("Card read UID: "+str(uid[0])+","+str(uid[1]) +
-              ","+str(uid[2])+","+str(uid[3])+','+str(uid[4]))
-        # This is the default key for authentication
-        # key = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+        print("Card read UID: " + str(uid[0]) + "," + str(uid[1]) + "," +
+              str(uid[2]) + "," + str(uid[3]) + ',' + str(uid[4]))
 
         # Select the scanned tag
         MIFAREReader.MFRC522_SelectTag(uid)
 
-        # ENTER Your Card UID here
-        my_uid = [217, 164, 46, 195, 144]
-
-        # Configure LED Output Pin
-        LED1 = 36
-        GPIO.setup(LED1, GPIO.OUT)
-        GPIO.output(LED1, GPIO.LOW)
-
-        # Configure LED Output Pin
-        LED2 = 32
-        GPIO.setup(LED2, GPIO.OUT)
-        GPIO.output(LED2, GPIO.LOW)
-
         # Check to see if card UID read matches your card UID
-        if uid == my_uid:  # Open the Doggy Door if matching UIDs
+        if uid == my_uid:
             print("Access Granted")
-            GPIO.output(LED1, GPIO.HIGH)  # Turn on LED
-            client.publish(TOPIC, 'Access Granted')
-            time.sleep(5)  # Wait 5 Seconds
-            GPIO.output(LED1, GPIO.LOW)  # Turn off LED
+            GPIO.output(LED1, GPIO.HIGH)  # Turn on green LED
+            client.publish(TOPIC,
+                           'Access Granted')  # Publish that it was granted
+            time.sleep(7)  # Wait 7 Seconds
+            GPIO.output(LED1, GPIO.LOW)  # Turn off green LED
 
-        else:  # Don't open if UIDs don't match
-            GPIO.output(LED2, GPIO.HIGH)  # Turn on LED
+        else:
+            GPIO.output(LED2, GPIO.HIGH)  # Turn on red LED
             client.publish(TOPIC, 'Access Denied')
-            print("Access Denied, YOU SHALL NOT PASS!")
-            file = open("Rejects.txt", "r")
+            print("Access Denied!")  # Publish that it was denied
+            file = open("Rejects.txt",
+                        "r")  # Read in the rejects log and store it temp
             tempFile = file.read()
             file.close()
-            file = open("Rejects.txt", "w")
-            file.write(tempFile + "Bad card: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ": " + str(uid[0])+","+str(uid[1]) +
-                       "," + str(uid[2]) + "," + str(uid[3]) + ',' + str(uid[4]) + "\n")
+            file = open(
+                "Rejects.txt",
+                "w")  # Write back the rejects log and add an entry to it
+            file.write(tempFile + "Bad card: " +
+                       datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") +
+                       ": " + str(uid[0]) + "," + str(uid[1]) + "," +
+                       str(uid[2]) + "," + str(uid[3]) + ',' + str(uid[4]) +
+                       "\n")
             file.close()
-            time.sleep(5)
-            GPIO.output(LED2, GPIO.LOW)  # Turn off LED
+            time.sleep(7)  # Wait 7 Seconds
+            GPIO.output(LED2, GPIO.LOW)  # Turn off red LED
